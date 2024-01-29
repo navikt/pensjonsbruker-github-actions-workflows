@@ -1,0 +1,35 @@
+name: "Build and deploy java from workflow repo test"
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: false
+        default: ${{ github.event.repository.name }}
+        type: string
+
+jobs:
+  build-backend:
+    name: Build backend application
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build
+        run: mvn -B package --file pom.xml
