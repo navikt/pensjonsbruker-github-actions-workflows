@@ -62,6 +62,8 @@ jobs:
   trivy-docker:
     needs: build-backend
     permissions:
+      actions: read
+      contents: read
       id-token: write
       security-events: write
     uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/trivy-docker.yml@main
