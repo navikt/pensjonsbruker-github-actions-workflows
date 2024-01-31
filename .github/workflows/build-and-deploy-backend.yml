@@ -67,4 +67,5 @@ jobs:
     uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/trivy-docker.yml@main
     with:
       image: ${{ needs.build-backend.outputs.image }}
+    secrets: inherit
 
