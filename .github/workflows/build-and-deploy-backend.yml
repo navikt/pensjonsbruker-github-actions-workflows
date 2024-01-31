@@ -16,6 +16,8 @@ jobs:
   build-backend:
     name: Build backend application
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
     permissions:
       actions: read
       contents: read
