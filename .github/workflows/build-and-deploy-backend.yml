@@ -27,11 +27,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+
       - name: Setup java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Setup cache
         uses: actions/cache@v4
         with:
@@ -39,22 +41,15 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
       - name: Build
         run: cd .${{ inputs.path }} && mvn -B package --file pom.xml
-
-#      - name: Create tag
-#        id: tag
-#        run: |
-#          TAG=$(date "+%FT%H.%M")-$(git rev-parse --short HEAD)
-#          echo "TAG=$TAG" >> $GITHUB_ENV
-#          echo "::set-output name=tag::$TAG"
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
           team: pensjon-person
-#          tag: ${{ env.TAG }}
           dockerfile: .${{ inputs.path }}/Dockerfile
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
