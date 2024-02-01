@@ -16,7 +16,7 @@ on:
         type: string
 
 jobs:
-  build-backend-and-push-docker:
+  build-backend-and-publish-docker:
     name: Build backend application
     runs-on: ubuntu-latest
     permissions:
