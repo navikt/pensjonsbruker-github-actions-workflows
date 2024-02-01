@@ -1,0 +1,26 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+      nais-template:
+        required: true
+        type: string
+
+jobs:
+  deploy-to-q2:
+    name: Deploy til q2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy to dev-fss
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-fss
+          RESOURCE: ${{ inputs.nais-template }}
+          IMAGE: ${{ inputs.image }}
+          TEAM: pensjon-person
