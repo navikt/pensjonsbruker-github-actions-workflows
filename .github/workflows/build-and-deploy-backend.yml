@@ -22,7 +22,7 @@ jobs:
       contents: read
       id-token: write
     with:
-      path: ${{ path }}
+      path: ${{ inputs.path }}
     secrets: inherit
 
   trivy-docker:
