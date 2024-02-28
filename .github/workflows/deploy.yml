@@ -9,6 +9,9 @@ on:
       nais-template:
         required: true
         type: string
+      team:
+        required: true
+        type: string
 
 jobs:
   deploy-to-q2:
@@ -23,4 +26,4 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: ${{ inputs.nais-template }}
           IMAGE: ${{ inputs.image }}
-          TEAM: pensjon-person
+          TEAM: $ {{ inputs.team }}
