@@ -3,10 +3,6 @@ name: "Build and deploy java from workflow repo test"
 on:
   workflow_call:
     inputs:
-      app:
-        required: false
-        default: ${{ github.event.repository.name }}
-        type: string
       path:
         required: false
         default: ""

@@ -1,4 +1,4 @@
-name: "Build and deploy backend maven fss (q2)"
+name: "Build and deploy backend maven fss (prod, q0, q1)"
 
 on:
   workflow_call:
@@ -7,15 +7,22 @@ on:
         required: false
         default: ""
         type: string
-      nais-template:
+      team:
         required: true
         type: string
-      team:
+      nais-template-production:
+        required: true
+        type: string
+      nais-template-q0:
+        required: true
+        type: string
+      nais-template-q1:
         required: true
         type: string
 
 jobs:
   build-backend-and-publish-docker:
+    if: github.ref == 'refs/heads/main'
     name: Build backend application
     runs-on: ubuntu-latest
     permissions:
@@ -53,22 +60,13 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
-#  trivy-docker:
-#    needs: build-backend-and-publish-docker
-#    permissions:
-#      actions: read
-#      contents: read
-#      id-token: write
-#      security-events: write
-#    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/trivy-docker.yml@main
-#    with:
-#      image: ${{ needs.build-backend-and-publish-docker.outputs.image }}
-#    secrets: inherit
-
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build-backend-and-publish-docker
-    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/deploy-q2.yml@main
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/deploy-prod-q0-q1.yml@main
     with:
       image: ${{ needs.build-backend-and-publish-docker.outputs.image }}
-      nais-template: ${{ inputs.nais-template }}
+      nais-template-production: ${{ inputs.nais-template-production }}
+      nais-template-q0: ${{ inputs.nais-template-q0 }}
+      nais-template-q1: ${{ inputs.nais-template-q1 }}
       team: ${{ inputs.team }}
