@@ -21,6 +21,8 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
+    with:
+      path: ${{ inputs.path }}
 
   trivy-docker:
     needs: build-backend-and-publish-docker
