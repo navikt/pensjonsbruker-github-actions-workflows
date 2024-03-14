@@ -31,14 +31,17 @@ jobs:
       path: ${{ inputs.path }}
     secrets: inherit
 
-      - name: docker-build-push
-        uses: nais/docker-build-push@v0
-        id: docker-build-push
-        with:
-          team: pensjon-person
-          dockerfile: .${{ inputs.path }}/Dockerfile
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+  trivy-docker:
+    needs: build-backend-and-publish-docker
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      security-events: write
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/trivy-docker.yml@main
+    with:
+      image: ${{ needs.build-backend-and-publish-docker.outputs.image }}
+    secrets: inherit
 
   deploy:
     if: github.ref == 'refs/heads/main'
