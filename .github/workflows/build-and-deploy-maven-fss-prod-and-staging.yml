@@ -19,6 +19,9 @@ on:
       nais-template-q1:
         required: true
         type: string
+      cluster:
+        required: true
+        type: string
 
 jobs:
   build-backend-and-publish-docker:
@@ -53,3 +56,4 @@ jobs:
       nais-template-q0: ${{ inputs.nais-template-q0 }}
       nais-template-q1: ${{ inputs.nais-template-q1 }}
       team: ${{ inputs.team }}
+      cluster: ${{ inputs.cluster }}
