@@ -12,6 +12,9 @@ on:
       team:
         required: true
         type: string
+      cluster:
+        required: true
+        type: string
 
 jobs:
   deploy-to-q2:
@@ -20,10 +23,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Deploy to dev-fss
+      - name: Deploy q2
         uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: dev-fss
+          CLUSTER: ${{ inputs.cluster }}
           RESOURCE: ${{ inputs.nais-template }}
           IMAGE: ${{ inputs.image }}
           TEAM: ${{ inputs.team }}
