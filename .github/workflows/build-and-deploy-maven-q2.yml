@@ -42,7 +42,7 @@ jobs:
 
   deploy:
     needs: build-backend-and-publish-docker
-    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/deploy-q2.yml@main
+    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/deploy-q2.yml@attempt-to-pass-cluster-as-environment
     with:
       image: ${{ needs.build-backend-and-publish-docker.outputs.image }}
       nais-template: ${{ inputs.nais-template }}
