@@ -12,6 +12,10 @@ on:
       team:
         required: true
         type: string
+      cluster:
+        required: false
+        default: dev-fss
+        type: string
 
 jobs:
   deploy-to-q2:
@@ -23,7 +27,7 @@ jobs:
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: dev-fss
+          CLUSTER: ${{ inputs.cluster }}
           RESOURCE: ${{ inputs.nais-template }}
           IMAGE: ${{ inputs.image }}
           TEAM: ${{ inputs.team }}
