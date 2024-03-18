@@ -28,18 +28,6 @@ jobs:
       path: ${{ inputs.path }}
     secrets: inherit
 
-  trivy-docker:
-    needs: build-backend-and-publish-docker
-    permissions:
-      actions: read
-      contents: read
-      id-token: write
-      security-events: write
-    uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/trivy-docker.yml@main
-    with:
-      image: ${{ needs.build-backend-and-publish-docker.outputs.image }}
-    secrets: inherit
-
   deploy:
     needs: build-backend-and-publish-docker
     uses: navikt/pensjonsbruker-github-actions-workflows/.github/workflows/deploy-q2.yml@attempt-to-pass-cluster-as-environment
