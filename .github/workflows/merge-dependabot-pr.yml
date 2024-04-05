@@ -29,7 +29,7 @@ jobs:
                 repo: context.repo.repo,
             })
             
-            console.log("pulls: " + pulls.length())
+            console.log("pulls: " + pulls.length)
 
             const filtrert = pulls.data
                 .filter((it) => it.state == 'open')
@@ -83,7 +83,7 @@ jobs:
                     }
                 })
             
-            console.log("filtrerte: " + filtrerte.length())
+            console.log("filtrerte: " + filtrerte.length)
 
             const allePrs = await Promise.all(filtrert)
             const mergeablePromise = allePrs
@@ -106,7 +106,7 @@ jobs:
                 .filter((it) => {
                   return it.mergeable;
                 })
-            console.log("mergeable: " + mergeable.length())
+            console.log("mergeable: " + mergeable.length)
             
             if (mergeable.length > 0) {
                 const pr = mergeable[0]
