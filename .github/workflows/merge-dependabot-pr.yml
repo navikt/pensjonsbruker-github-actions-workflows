@@ -83,7 +83,7 @@ jobs:
                     }
                 })
             
-            console.log("filtrerte: " + filtrerte.length)
+            console.log("filtrert: " + filtrert.length)
 
             const allePrs = await Promise.all(filtrert)
             const mergeablePromise = allePrs
