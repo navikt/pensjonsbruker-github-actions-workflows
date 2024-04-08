@@ -117,6 +117,18 @@ jobs:
                     pull_number: pr.number,
                     merge_method: 'squash'
                 })
+            
+              console.log('Starter main workflow')
+            
+              await github.request(
+                  'POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches',
+                  {
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      workflow_id: 'build-and-deploy.yml',
+                      ref: 'main',
+                  }
+              )
             } else {
                 console.log('Ingen PRer å merge')
             }
