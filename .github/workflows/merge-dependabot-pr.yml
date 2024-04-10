@@ -1,6 +1,11 @@
 name: Merge dependabot pr
 on:
   workflow_call:
+    inputs:
+      workflow-id:
+        required: false
+        default: "build-and-deploy.yml"
+        type: string
 
 jobs:
   merge-pullrequests:
@@ -8,8 +13,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/github-script@v7
+        env:
+          WORKFLOW_ID: ${{ inputs.workflow-id }}
         with:
           script: |
+            const { WORKFLOW_ID } = process.env
+            
+            console.log("WORKFLOW_ID: " + WORKFLOW_ID)
+            
             const today = new Date();
             const sommerStart = new Date(today.getFullYear(), 5, 20);
             const sommerSlutt = new Date(today.getFullYear(), 7, 7);
@@ -125,7 +136,7 @@ jobs:
                   {
                       owner: context.repo.owner,
                       repo: context.repo.repo,
-                      workflow_id: 'build-and-deploy.yml',
+                      workflow_id: WORKFLOW_ID,
                       ref: 'main',
                   }
               )
