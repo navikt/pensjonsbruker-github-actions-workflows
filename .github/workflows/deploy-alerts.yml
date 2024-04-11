@@ -1,0 +1,46 @@
+name: Deploy alerts
+on:
+  workflow_call:
+    inputs:
+      nais-template-q2:
+        required: true
+        type: string
+      nais-template-production:
+        required: true
+        type: string
+      dev-cluster:
+        required: true
+        type: string
+      production-cluster:
+        required: true
+        type: string
+
+jobs:
+  deploy-q2-alerts:
+    name: Deploy alerts q2
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy alerts
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: ${{ inputs.nais-template-q2 }
+          RESOURCE: ${{ inputs.dev-cluster }
+
+  deploy-prod-alerts:
+    if: github.ref == 'refs/heads/main'
+    name: Deploy alerts prod
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy alerts
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: ${{ inputs.production-cluster }
+          RESOURCE: ${{ inputs.nais-template-production }
