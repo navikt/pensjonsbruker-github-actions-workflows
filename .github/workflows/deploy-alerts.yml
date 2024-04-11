@@ -27,8 +27,8 @@ jobs:
       - name: Deploy alerts
         uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: ${{ inputs.nais-template-q2 }}
-          RESOURCE: ${{ inputs.dev-cluster }}
+          CLUSTER: ${{ inputs.dev-cluster }}
+          RESOURCE: ${{ inputs.nais-template-q2 }}
 
   deploy-prod-alerts:
     if: github.ref == 'refs/heads/main'
