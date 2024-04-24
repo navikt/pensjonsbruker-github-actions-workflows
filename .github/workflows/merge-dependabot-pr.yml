@@ -6,6 +6,10 @@ on:
         required: false
         default: "build-and-deploy.yml"
         type: string
+      label:
+        required: false
+        default: "automerge"
+        type: string
 
 jobs:
   merge-pullrequests:
@@ -15,11 +19,14 @@ jobs:
       - uses: actions/github-script@v7
         env:
           WORKFLOW_ID: ${{ inputs.workflow-id }}
+          LABEL: ${{ inputs.label }}
         with:
           script: |
             const { WORKFLOW_ID } = process.env
+            const { LABEL } = process.env
             
             console.log("WORKFLOW_ID: " + WORKFLOW_ID)
+            console.log("LABEL: " + LABEL)
             
             const today = new Date();
             const sommerStart = new Date(today.getFullYear(), 5, 20);
@@ -45,7 +52,7 @@ jobs:
             const filtrert = pulls.data
                 .filter((it) => it.state == 'open')
                 .filter((it) => !it.head.repo.fork)
-                .filter((it) => it.labels.some((l) => l.name == 'automerge'))
+                .filter((it) => it.labels.some((l) => l.name == LABEL))
                 .filter((it) => {
                     const prCreated = new Date(it.created_at)
                     if (it.title.includes('navikt') || it.title.includes('aksel')) {
