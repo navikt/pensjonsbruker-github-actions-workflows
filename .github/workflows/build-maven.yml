@@ -1,4 +1,4 @@
-name: "Build and deploy java from workflow repo test"
+name: "Build maven"
 
 on:
   workflow_call:
