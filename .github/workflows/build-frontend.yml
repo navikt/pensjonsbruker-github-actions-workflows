@@ -12,12 +12,6 @@ jobs:
   build-frontend:
     name: Build frontend application
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      id-token: write
-      packages: write
-      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
