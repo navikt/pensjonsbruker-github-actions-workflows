@@ -1,0 +1,50 @@
+name: "Build frontend"
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  build-frontend:
+    name: Build frontend application
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: write
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Use Node.js v18.18.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.18.1'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Cache node modules
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: cd ${{ inputs.path }} && npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build frontend application
+        run: cd ${{ inputs.path }} && npm ci && npm run build
+        env:
+          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
