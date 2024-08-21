@@ -4,6 +4,10 @@ on:
       path:
         required: true
         type: string
+      team:
+        required: false
+        type: string
+        default: pensjon-person
     outputs:
       image:
         value: ${{ jobs.build-backend-and-publish-docker.outputs.image }}
@@ -42,7 +46,7 @@ jobs:
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
-          team: pensjon-person
+          team: ${{ inputs.team }}
           dockerfile: .${{ inputs.path }}/Dockerfile
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
