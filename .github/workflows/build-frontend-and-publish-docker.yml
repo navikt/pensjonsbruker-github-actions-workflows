@@ -1,0 +1,73 @@
+name: "Build frontend and publish docker"
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: ""
+        type: string
+      veileder_mode:
+        required: false
+        default: false
+        type: boolean
+    outputs:
+      image:
+        value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
+
+jobs:
+  build-frontend-and-publish-docker:
+    name: Build frontend application
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Use Node.js v18.18.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.18.1'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Cache node modules
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: cd ${{ inputs.path }} && npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build frontend application
+        if: ${{ inputs.veileder_mode == false }}
+        run: cd ${{ inputs.path }} && npm ci && npm run build
+        env:
+          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build frontend application veileder
+        if: ${{ inputs.veileder_mode == true }}
+        run: cd ./${{ inputs.path }}/ && npm ci && npm run build:development:veileder
+        env:
+          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: docker-build-push
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: pensjon-person
+          dockerfile: ./${{ inputs.path }}/.docker/Dockerfile
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
