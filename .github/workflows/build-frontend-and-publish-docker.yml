@@ -7,10 +7,6 @@ on:
         required: false
         default: ""
         type: string
-      veileder_mode:
-        required: false
-        default: false
-        type: boolean
       team:
         required: true
         type: string
@@ -59,15 +55,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
       - name: Build frontend application
-        if: ${{ inputs.veileder_mode == false }}
         run: cd ${{ inputs.path }} && npm ci && npm run ${{ inputs.build_script_command }}
-        env:
-          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-
-      - name: Build frontend application veileder
-        if: ${{ inputs.veileder_mode == true }}
-        run: cd ./${{ inputs.path }}/ && npm ci && npm run build:development:veileder
         env:
           FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
