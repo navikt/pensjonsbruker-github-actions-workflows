@@ -14,6 +14,9 @@ on:
       team:
         required: true
         type: string
+      app:
+        required: true
+        type: string
     outputs:
       image:
         value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
@@ -74,4 +77,4 @@ jobs:
           dockerfile: ./${{ inputs.path }}/.docker/Dockerfile
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          image_suffix: ${{ inputs.veileder_mode == true && '-borger' || '-veileder' }}
+          image_suffix: ${{ inputs.app }}

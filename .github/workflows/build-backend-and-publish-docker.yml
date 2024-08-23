@@ -8,6 +8,10 @@ on:
         required: false
         type: string
         default: pensjon-person
+      app:
+        required: false
+        default: ""
+        type: string
     outputs:
       image:
         value: ${{ jobs.build-backend-and-publish-docker.outputs.image }}
@@ -50,3 +54,4 @@ jobs:
           dockerfile: .${{ inputs.path }}/Dockerfile
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          image_suffix: ${{ inputs.app }}
