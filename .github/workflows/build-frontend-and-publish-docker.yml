@@ -17,6 +17,9 @@ on:
       app:
         required: true
         type: string
+      build_script_command:
+        required: true
+        type: string
     outputs:
       image:
         value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
@@ -57,7 +60,7 @@ jobs:
 
       - name: Build frontend application
         if: ${{ inputs.veileder_mode == false }}
-        run: cd ${{ inputs.path }} && npm ci && npm run build
+        run: cd ${{ inputs.path }} && npm ci && npm run ${{ inputs.build_script_command }}
         env:
           FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
