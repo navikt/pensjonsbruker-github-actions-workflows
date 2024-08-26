@@ -5,6 +5,10 @@ on:
       image:
         required: true
         type: string
+      team:
+        required: false # Burde være required - fiks for konsumenter først
+        type: string
+        default: pensjon-person
 
 jobs:
   trivy:
@@ -14,7 +18,7 @@ jobs:
         with:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          team: pensjon-person
+          team: ${{ inputs.team }}
       - name: Run Trivy vulnerability scanner
         #        if: github.ref == 'refs/heads/main'
         uses: aquasecurity/trivy-action@master
