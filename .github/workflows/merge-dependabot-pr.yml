@@ -29,14 +29,12 @@ jobs:
             console.log("LABEL: " + LABEL)
             
             const today = new Date();
-            const sommerStart = new Date(today.getFullYear(), 5, 20);
-            const sommerSlutt = new Date(today.getFullYear(), 7, 7);
             const julStart = new Date(today.getFullYear(), 11, 20);
             const julSlutt = new Date(today.getFullYear(), 11, 31);
             const nyttaarStart = new Date(today.getFullYear(), 0, 1);
             const nyttaarSlutt = new Date(today.getFullYear(), 0, 3);
 
-            if ((today >= sommerStart && today <= sommerSlutt) || (today >= julStart && today <= julSlutt) || (today >= nyttaarStart && today <= nyttaarSlutt)) {
+            if ((today >= julStart && today <= julSlutt) || (today >= nyttaarStart && today <= nyttaarSlutt)) {
                 console.log('Skriptet kjører ikke i ferier');
                 return;
             }
