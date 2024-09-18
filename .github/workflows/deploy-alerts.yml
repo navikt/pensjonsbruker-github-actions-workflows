@@ -3,20 +3,23 @@ on:
   workflow_call:
     inputs:
       nais-template-q2:
-        required: true
+        required: false
         type: string
+        default: ""
       nais-template-production:
         required: true
         type: string
       dev-cluster:
-        required: true
+        required: false
         type: string
+        default: ""
       production-cluster:
         required: true
         type: string
 
 jobs:
   deploy-q2-alerts:
+    if: ${{ inputs.nais-template-q2 != '' && inputs.dev-cluster != '' }}
     name: Deploy alerts q2
     permissions:
       contents: read
