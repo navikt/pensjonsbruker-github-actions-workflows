@@ -7,6 +7,10 @@ on:
         required: false
         default: ""
         type: string
+      node_version:
+        required: false
+        type: string
+        default: "18.18.1"
 
 jobs:
   build-frontend:
@@ -16,10 +20,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - name: Use Node.js v18.18.1
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.18.1'
+          node-version: ${{ inputs.node_version }}
           registry-url: 'https://npm.pkg.github.com'
 
       - name: Cache node modules
