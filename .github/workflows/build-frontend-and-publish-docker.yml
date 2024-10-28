@@ -20,6 +20,10 @@ on:
         required: false
         type: string
         default: "18.18.1"
+      prune_dev_dependencies:
+        required: false
+        type: boolean
+        default: false
     outputs:
       image:
         value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
@@ -28,41 +32,36 @@ jobs:
   build-frontend-and-publish-docker:
     name: Build frontend application
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./${{ inputs.path }}
     permissions:
-      contents: "read"
-      id-token: "write"
+      contents: read
+      id-token: write
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           registry-url: 'https://npm.pkg.github.com'
-
-      - name: Cache node modules
-        id: cache-node
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          cache: npm
 
       - name: Install dependencies
-        if: steps.cache-node.outputs.cache-hit != 'true'
-        run: cd ${{ inputs.path }} && npm ci
+        run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
-      - name: Build frontend application
-        run: cd ${{ inputs.path }} && npm ci && npm run ${{ inputs.build_script_command }}
-        env:
-          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Build application
+        run: npm run ${{ inputs.build_script_command }}
+
+      - name: prune dev dependencies
+        if: ${{ inputs.prune_dev_dependencies == true }}
+        run: npm prune --production
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
