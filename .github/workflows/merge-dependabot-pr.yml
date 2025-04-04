@@ -53,7 +53,7 @@ jobs:
             const nonForkPulls = openPulls.filter((it) => !it.head.repo.fork)
             console.log("Non-fork pulls count: ", nonForkPulls.length)
             
-            nonForkPulls..forEach((it) => {
+            nonForkPulls.forEach((it) => {
               console.log("NonForkPulls: " + it.title + ": " + it.created_at)
             })
             
