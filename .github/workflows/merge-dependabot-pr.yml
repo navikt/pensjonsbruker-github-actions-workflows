@@ -45,59 +45,66 @@ jobs:
                 repo: context.repo.repo,
             })
             
-            console.log("pulls: " + pulls.length)
-
-            const filtrert = pulls.data
-                .filter((it) => it.state == 'open')
-                .filter((it) => !it.head.repo.fork)
-                .filter((it) => it.labels.some((l) => l.name == LABEL))
-                .filter((it) => {
-                    const prCreated = new Date(it.created_at)
-                    const threeDays = 3 * 24 * 60 * 60 * 1000
-                    return prCreated.getTime() < Date.now() - threeDays
-                })
-                .map((it) => {
-                    return {
-                        title: it.title,
-                        number: it.number,
-
-                    }
-                })
-                .map(async (it) => {
-                    const QUERY = `query($owner: String!, $repo: String!, $pull_number: Int!) {
-                                          repository(owner: $owner, name:$repo) {
-                                            pullRequest(number:$pull_number) {
-                                              commits(last: 1) {
-                                                nodes {
-                                                  commit {
-                                                    statusCheckRollup {
-                                                      state
-                                                    }
+            console.log("Initial pulls count: ", pulls.data.length)
+            
+            const openPulls = pulls.data.filter((it) => it.state == 'open')
+            console.log("Open pulls count: ", openPulls.length)
+            
+            const nonForkPulls = openPulls.filter((it) => !it.head.repo.fork)
+            console.log("Non-fork pulls count: ", nonForkPulls.length)
+            
+            const labeledPulls = nonForkPulls.filter((it) => it.labels.some((l) => l.name == LABEL))
+            console.log("Labeled pulls count: ", labeledPulls.length)
+            
+            const oldPulls = labeledPulls.filter((it) => {
+              const prCreated = new Date(it.created_at)
+              const threeDays = 3 * 24 * 60 * 60 * 1000
+              return prCreated.getTime() < Date.now() - threeDays
+            })
+            console.log("Old pulls count: ", oldPulls.length)
+            
+            const pullDetails = oldPulls.map((it) => {
+              return {
+                title: it.title,
+                number: it.number,
+              }
+            })
+            console.log("Pull details count: ", pullDetails)
+            
+            const detailedPulls = await Promise.all(pullDetails.map(async (it) => {
+              const QUERY = `query($owner: String!, $repo: String!, $pull_number: Int!) {
+                                        repository(owner: $owner, name:$repo) {
+                                          pullRequest(number:$pull_number) {
+                                            commits(last: 1) {
+                                              nodes {
+                                                commit {
+                                                  statusCheckRollup {
+                                                    state
                                                   }
                                                 }
                                               }
                                             }
                                           }
-                                        }`
-
-                    const result = await github.graphql(QUERY, {
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        pull_number: it.number,
-                    })
-                    const [{ commit: lastCommit }] =
-                        result.repository.pullRequest.commits.nodes
-
-                    return {
-                        title: it.title,
-                        number: it.number,
-                        checksOk: lastCommit.statusCheckRollup?.state === 'SUCCESS',
-                    }
-                })
+                                        }
+                                      }`
+          
+              const result = await github.graphql(QUERY, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: it.number,
+              })
+              
+              const [{ commit: lastCommit }] = result.repository.pullRequest.commits.nodes
+                return {
+                title: it.title,
+                number: it.number,
+                checksOk: lastCommit.statusCheckRollup?.state === 'SUCCESS',
+              }
+            }))
             
-            console.log("filtrert: " + filtrert.length)
+            console.log("Detailed pulls with status checks count: ", detailedPulls.length)
 
-            const allePrs = await Promise.all(filtrert)
+            const allePrs = await Promise.all(detailedPulls)
             const mergeablePromise = allePrs
                 .filter((it) => it.checksOk)
                 .map(async (it) => {
