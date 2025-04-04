@@ -55,7 +55,10 @@ jobs:
             
             const labeledPulls = nonForkPulls.filter((it) => it.labels.some((l) => l.name == LABEL))
             console.log("Labeled pulls count: ", labeledPulls.length)
-            console.log("Labeled pulls: ", labeledPulls)
+            
+            labeledPulls.forEach((it) => {
+              console.log(it.title + ": " + it.created_at)
+            })
             
             const oldPulls = labeledPulls.filter((it) => {
               const prCreated = new Date(it.created_at)
@@ -63,7 +66,6 @@ jobs:
               return prCreated.getTime() < Date.now() - threeDays
             })
             console.log("Old pulls count: ", oldPulls.length)
-            console.log("Old pulls: ", oldPulls)
             
             const pullDetails = oldPulls.map((it) => {
               return {
