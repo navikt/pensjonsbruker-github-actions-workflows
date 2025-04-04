@@ -62,6 +62,7 @@ jobs:
               return prCreated.getTime() < Date.now() - threeDays
             })
             console.log("Old pulls count: ", oldPulls.length)
+            console.log("Old pulls: ", oldPulls)
             
             const pullDetails = oldPulls.map((it) => {
               return {
