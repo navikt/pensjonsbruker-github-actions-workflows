@@ -55,6 +55,7 @@ jobs:
             
             const labeledPulls = nonForkPulls.filter((it) => it.labels.some((l) => l.name == LABEL))
             console.log("Labeled pulls count: ", labeledPulls.length)
+            console.log("Labeled pulls: ", labeledPulls)
             
             const oldPulls = labeledPulls.filter((it) => {
               const prCreated = new Date(it.created_at)
