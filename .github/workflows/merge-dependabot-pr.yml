@@ -53,11 +53,15 @@ jobs:
             const nonForkPulls = openPulls.filter((it) => !it.head.repo.fork)
             console.log("Non-fork pulls count: ", nonForkPulls.length)
             
+            nonForkPulls..forEach((it) => {
+              console.log("NonForkPulls: " + it.title + ": " + it.created_at)
+            })
+            
             const labeledPulls = nonForkPulls.filter((it) => it.labels.some((l) => l.name == LABEL))
             console.log("Labeled pulls count: ", labeledPulls.length)
             
             labeledPulls.forEach((it) => {
-              console.log(it.title + ": " + it.created_at)
+              console.log("LabeledPulls: " + it.title + ": " + it.created_at)
             })
             
             const oldPulls = labeledPulls.filter((it) => {
