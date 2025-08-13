@@ -1,0 +1,98 @@
+name: "Build frontend and publish docker"
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: ""
+        type: string
+      team:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      build_script_command:
+        required: false
+        type: string
+        default: "build"
+      node_version:
+        required: false
+        type: string
+        default: "18.18.1"
+      prune_dev_dependencies:
+        required: false
+        type: boolean
+        default: false
+      NAIS_MANAGEMENT_PROJECT_ID:
+        required: true
+        type: string
+        description: "Management project ID for NAIS"
+      application_name:
+        required: true
+        type: string
+        description: "Name of the application"
+    secrets:
+      READER_TOKEN:
+        required: true
+        description: "GitHub token with read access to the NPM registry"
+      NAIS_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+        description: "Workload identity provider for NAIS"
+    outputs:
+      image:
+        value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
+
+jobs:
+  build-frontend-and-publish-docker:
+    name: Build frontend application
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          registry-url: "https://npm.pkg.github.com"
+          cache: npm
+          cache-dependency-path: ${{ inputs.path }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.path }}
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build application
+        working-directory: ${{ inputs.path }}
+        run: npm run ${{ inputs.build_script_command }}
+
+      - name: Prune dev dependencies
+        if: ${{ inputs.prune_dev_dependencies == true }}
+        working-directory: ${{ inputs.path }}
+        run: npm prune --production
+
+      - name: Upload assets to CDN
+        uses: nais/deploy/actions/cdn-upload/v2@master
+        with:
+          team: ${{ inputs.team }}
+          source: ./${{ inputs.path }}/.next/static
+          destination: ${{ inputs.application_name }}/_next
+          project_id: ${{ inputs.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: docker-build-push
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: ${{ inputs.team }}
+          dockerfile: ./${{ inputs.path }}/.docker/Dockerfile
+          image_suffix: ${{ inputs.app }}
