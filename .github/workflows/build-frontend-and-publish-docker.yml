@@ -50,6 +50,7 @@ jobs:
           node-version: ${{ inputs.node_version }}
           registry-url: 'https://npm.pkg.github.com'
           cache: npm
+          cache-dependency-path: ${{ inputs.path }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
