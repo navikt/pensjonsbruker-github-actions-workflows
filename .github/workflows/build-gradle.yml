@@ -38,4 +38,4 @@ jobs:
         run: |
           cd "${{ inputs.path }}"
           chmod +x ./gradlew
-          ./gradlew -p "${{ inputs.path }}" test build
+          ./gradlew test build
