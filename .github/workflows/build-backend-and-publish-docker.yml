@@ -16,6 +16,10 @@ on:
         required: false
         default: 17
         type: string
+      build-tool:
+        required: false
+        default: maven
+        type: string
     outputs:
       image:
         value: ${{ jobs.build-backend-and-publish-docker.outputs.image }}
@@ -39,7 +43,8 @@ jobs:
           distribution: temurin
           java-version: ${{ inputs.java-version }}
 
-      - name: Setup cache
+      - name: Setup Maven cache
+        if: ${{ inputs.build-tool == 'maven' }}
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -47,13 +52,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build
-        run: cd .${{ inputs.path }} && mvn -B package --file pom.xml
+      - name: Setup Gradle cache
+        if: ${{ inputs.build-tool == 'gradle' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Maven
+        if: ${{ inputs.build-tool == 'maven' }}
+        working-directory: ./${{ inputs.path }}
+        run: mvn -B package --file pom.xml
+
+      - name: Build with Gradle
+        if: ${{ inputs.build-tool == 'gradle' }}
+        working-directory: ./${{ inputs.path }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test build
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
           team: ${{ inputs.team }}
-          dockerfile: .${{ inputs.path }}/Dockerfile
+          dockerfile: ./${{ inputs.path }}/Dockerfile
           image_suffix: ${{ inputs.app }}
