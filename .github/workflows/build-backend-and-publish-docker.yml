@@ -19,10 +19,7 @@ on:
       build-tool:
         required: false
         default: maven
-        type: choice
-        options:
-          - maven
-          - gradle
+        type: string
     outputs:
       image:
         value: ${{ jobs.build-backend-and-publish-docker.outputs.image }}
@@ -39,6 +36,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+
+      - name: Validate build-tool input
+        run: |
+          case "${{ inputs.build-tool }}" in
+            maven|gradle) echo "Using ${{ inputs.build-tool }}" ;;
+            *) echo "Invalid build-tool '${{ inputs.build-tool }}'. Must be 'maven' or 'gradle'." >&2; exit 1 ;;
+          esac
 
       - name: Setup java
         uses: actions/setup-java@v4
