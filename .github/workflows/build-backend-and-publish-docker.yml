@@ -19,7 +19,10 @@ on:
       build-tool:
         required: false
         default: maven
-        type: string
+        type: choice
+        options:
+          - maven
+          - gradle
     outputs:
       image:
         value: ${{ jobs.build-backend-and-publish-docker.outputs.image }}
