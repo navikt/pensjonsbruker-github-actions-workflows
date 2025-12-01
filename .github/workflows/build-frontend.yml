@@ -16,6 +16,9 @@ jobs:
   build-frontend:
     name: Build frontend application
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./${{ inputs.path }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -28,23 +31,10 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.path }}/package-lock.json
 
-      - name: Cache node modules
-        id: cache-node
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
       - name: Install dependencies
-        if: steps.cache-node.outputs.cache-hit != 'true'
-        run: cd ${{ inputs.path }} && npm ci
+        run: npm ci --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
-      - name: Build frontend application
-        run: cd ${{ inputs.path }} && npm ci && npm run build
-        env:
-          FARO_TELEMETRY_URL: 'https://telemetry.ekstern.dev.nav.no/collect'
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Build application
+        run: npm run ${{ inputs.build_script_command }}
