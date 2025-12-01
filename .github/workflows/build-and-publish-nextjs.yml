@@ -67,7 +67,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ inputs.path }}
-        run: npm ci
+        run: npm ci --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
