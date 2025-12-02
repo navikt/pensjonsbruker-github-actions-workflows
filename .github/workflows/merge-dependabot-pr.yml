@@ -53,8 +53,8 @@ jobs:
                 .filter((it) => it.labels.some((l) => l.name == LABEL))
                 .filter((it) => {
                     const prCreated = new Date(it.created_at)
-                    const threeDays = 3 * 24 * 60 * 60 * 1000
-                    return prCreated.getTime() < Date.now() - threeDays
+                    const sevenDays = 7 * 24 * 60 * 60 * 1000
+                    return prCreated.getTime() < Date.now() - sevenDays
                 })
                 .map((it) => {
                     return {
