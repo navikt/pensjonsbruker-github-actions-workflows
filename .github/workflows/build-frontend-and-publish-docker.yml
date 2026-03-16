@@ -69,5 +69,5 @@ jobs:
         id: docker-build-push
         with:
           team: ${{ inputs.team }}
-          dockerfile: ./${{ inputs.path }}/.docker/Dockerfile
+          dockerfile: ${{ inputs.path && format('./{0}/.docker/Dockerfile', inputs.path) || './.docker/Dockerfile' }}
           image_suffix: ${{ inputs.app }}
