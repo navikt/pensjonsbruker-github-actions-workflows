@@ -52,7 +52,7 @@ jobs:
 
       - name: Setup Maven cache
         if: ${{ inputs.build-tool == 'maven' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -61,7 +61,7 @@ jobs:
 
       - name: Setup Gradle cache
         if: ${{ inputs.build-tool == 'gradle' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
