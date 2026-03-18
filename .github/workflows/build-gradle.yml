@@ -36,6 +36,6 @@ jobs:
             gradle-${{ runner.os }}-
       - name: Build
         run: |
-          cd "${{ inputs.path }}"
+          cd ."${{ inputs.path }}"
           chmod +x ./gradlew
           ./gradlew test build
