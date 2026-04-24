@@ -1,0 +1,84 @@
+name: "Build frontend and publish docker (pnpm)"
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: ""
+        type: string
+      team:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      build_script_command:
+        required: true
+        type: string
+      node_version:
+        required: false
+        type: string
+        default: "18.18.1"
+      pnpm_version:
+        required: false
+        type: string
+        default: "10"
+      prune_dev_dependencies:
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      image:
+        value: ${{ jobs.build-frontend-and-publish-docker.outputs.image }}
+
+jobs:
+  build-frontend-and-publish-docker:
+    name: Build frontend application
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./${{ inputs.path }}
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ inputs.pnpm_version }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+          registry-url: 'https://npm.pkg.github.com'
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.path && format('{0}/pnpm-lock.yaml', inputs.path) || 'pnpm-lock.yaml' }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build application
+        run: pnpm run ${{ inputs.build_script_command }}
+
+      - name: prune dev dependencies
+        if: ${{ inputs.prune_dev_dependencies == true }}
+        run: pnpm prune --prod
+
+      - name: docker-build-push
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: ${{ inputs.team }}
+          dockerfile: ${{ inputs.path && format('./{0}/.docker/Dockerfile', inputs.path) || './.docker/Dockerfile' }}
+          image_suffix: ${{ inputs.app }}
+
+
