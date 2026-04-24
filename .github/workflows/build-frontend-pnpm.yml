@@ -1,0 +1,54 @@
+name: "Build frontend (pnpm)"
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: ""
+        type: string
+      node_version:
+        required: false
+        type: string
+        default: "18.18.1"
+      pnpm_version:
+        required: false
+        type: string
+        default: "10"
+      build_script_command:
+        required: false
+        type: string
+        default: "build"
+
+jobs:
+  build-frontend:
+    name: Build frontend application
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ inputs.pnpm_version }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+          registry-url: 'https://npm.pkg.github.com'
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.path && format('{0}/pnpm-lock.yaml', inputs.path) || 'pnpm-lock.yaml' }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build application
+        run: pnpm run ${{ inputs.build_script_command }}
+
