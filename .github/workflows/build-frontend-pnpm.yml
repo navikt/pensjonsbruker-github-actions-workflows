@@ -40,9 +40,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node_version }}
-          registry-url: 'https://npm.pkg.github.com'
           cache: pnpm
-          cache-dependency-path: ${{ inputs.path && format('{0}/pnpm-lock.yaml', inputs.path) || 'pnpm-lock.yaml' }}
+          cache-dependency-path: ${{ inputs.path != '' && format('{0}/pnpm-lock.yaml', inputs.path) || '**/pnpm-lock.yaml' }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
