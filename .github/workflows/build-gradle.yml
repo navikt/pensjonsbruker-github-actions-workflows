@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: ${{ inputs.java-version }}
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
       - name: Cache Gradle dependencies
         uses: actions/cache@v5.0.4
         with:
