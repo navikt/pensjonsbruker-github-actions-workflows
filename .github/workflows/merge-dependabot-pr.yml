@@ -24,6 +24,7 @@ jobs:
           script: |
             const { WORKFLOW_ID } = process.env
             const { LABEL } = process.env
+            const headers = { 'X-GitHub-Api-Version': '2026-03-10' }
 
             console.log("WORKFLOW_ID: " + WORKFLOW_ID)
             console.log("LABEL: " + LABEL)
@@ -43,6 +44,7 @@ jobs:
             const pulls = await github.request('GET /repos/{owner}/{repo}/pulls?per_page=100', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
+                headers,
             })
 
             console.log("pulls: " + pulls.data.length)
@@ -104,7 +106,8 @@ jobs:
                     const prdata = await github.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        pull_number: it.number
+                        pull_number: it.number,
+                        headers
                     })
                     return {
                         title: it.title,
@@ -127,7 +130,8 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: pr.number,
-                    merge_method: 'squash'
+                    merge_method: 'squash',
+                    headers
                 })
 
               console.log('Starter main workflow')
@@ -139,6 +143,7 @@ jobs:
                       repo: context.repo.repo,
                       workflow_id: WORKFLOW_ID,
                       ref: 'main',
+                      headers,
                   }
               )
             } else {
