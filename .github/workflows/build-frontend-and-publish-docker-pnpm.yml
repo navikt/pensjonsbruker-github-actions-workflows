@@ -69,9 +69,13 @@ jobs:
       - name: Build application
         run: pnpm run ${{ inputs.build_script_command }}
 
-      - name: prune dev dependencies
+      - name: Install clean production dependencies
         if: ${{ inputs.prune_dev_dependencies == true }}
-        run: pnpm prune --prod
+        run: |
+          rm -rf -- node_modules
+          pnpm install --prod --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
